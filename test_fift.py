@@ -71,10 +71,10 @@ class TestTimes:
         @script()
         def main():
             a = const('a', 1)
-            times(3, assign(a, '1+')).before(a)
+            times(3, assign(a, dup(), '+')).before(a)
 
         assert main() == '1 constant a\n' \
-                         '@\' a { 1+ =: a } 3 times'
+                         '@\' a { dup + =: a } 3 times'
 
 
 class TestConstants:

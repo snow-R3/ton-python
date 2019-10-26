@@ -7,6 +7,8 @@ possibility.
 
 Create an empty Fift script:
 ```python
+from fift.fift import *
+
 @script(out_filename='script.fif')
 def main():
     # python code which will be transformed to Fift language
@@ -24,6 +26,8 @@ decorator. As the result you will get the Fift code.
 #### Include another Fift script
 
 ```python
+from fift.fift import *
+
 @script()
 def main():
     # will be transformed as `"Asm.fif" include`
@@ -34,6 +38,8 @@ def main():
 #### Create the different constants
 
 ```python
+from fift.fift import *
+
 @script()
 def main():
     # create a constant with name `a` and value `1`
@@ -57,6 +63,8 @@ def main():
 #### Construct the builder
 
 ```python
+from fift.fift import *
+
 @script()
 def main():
     # create an empty builder and will be transformed as `<b  b>`
@@ -80,6 +88,8 @@ def main():
 #### Work with files (read, write and data deserialization)
 
 ```python
+from fift.fift import *
+
 @script()
 def main():
     # read a file. Transforms in `"test.bin" file>B`
@@ -102,6 +112,24 @@ def main():
         .s(2)
         .b(256, const=a)
         .ref(const=b))
+```
+
+#### Simple loops
+
+```python
+from fift.fift import *
+
+@script()
+def main():
+    # Simple loop. Transforms in `1 { 1+ } 1 times`
+    times(3, '1+').before(1)
+    # Reads a value from a constant and sum itself in each iteration of the loop 
+    # writing a new value to the constant
+    # Transforms in:
+    #   1 constant a
+    #   @' a { dup + =: a } 3 times
+    a = const('a', 1)
+    times(3, assign(a, dup(), '+')).before(a)
 ```
 
 *** Also to understand how it works you can look at the python tests.
