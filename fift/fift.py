@@ -41,7 +41,7 @@ def method(max_level=1):
                 frame_index += 1
                 if max_level is not None and frame_index > max_level:
                     break
-    
+
             res = f(*args, **kwargs)
 
             if script_conf is not None:
@@ -106,6 +106,69 @@ def dump():
             return '.s'
 
     return Dump()
+
+
+@method()
+def halt(code):
+    class Halt(Interface):
+        def __str__(self):
+            return '%s halt' % code
+
+    return Halt()
+
+
+@method()
+def block(*args):
+    class Block(Interface):
+        def __str__(self):
+            return '{ %s }' % seq(*args)
+
+    return Block()
+
+
+class WordResult:
+    def __init__(self, result):
+        self._result = result
+
+    def __str__(self):
+        return self._result
+
+
+class Word(Interface):
+    def __init__(self, name, *args):
+        super(Word, self).__init__(*args)
+        self._name = name
+
+    def set_lines(self, lines):
+        super(Word, self).set_lines(lines)
+
+        for a in self._args:
+            if isinstance(a, WordResult):
+                self._lines.pop()
+    
+    def __str__(self):
+        return '{ %s } : %s' % (
+            seq(*(isinstance(a, Word) and a.name or a for a in self._args)),
+            self._name)
+
+    def __call__(self, *args, **kwargs):
+        for a in args:
+            if isinstance(a, Interface) or isinstance(a, WordResult):
+                self._lines.pop()
+
+        r = WordResult('%s %s' % (seq(*args), self.name))
+        self._lines.append(r)
+        return r
+
+    def get_name(self):
+        return self._name
+
+    name = property(get_name)
+
+
+@method()
+def word(name, *args):
+    return Word(name, *args)
 
 
 @method()

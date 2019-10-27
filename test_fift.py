@@ -34,6 +34,35 @@ class TestInclude:
         assert str(include('Asm.fif').const('asm')) == '"Asm.fif" include constant asm'
 
 
+class TestBlock:
+    def test_empty_block(self):
+        assert str(block()) == '{  }'
+
+    def test_block_with_args(self):
+        assert str(block()) == '{  }'
+
+
+class TestWord:
+    def test_empty_word(self):
+        assert str(word('test')) == '{  } : test'
+
+    def test_word_with_args(self):
+        assert str(word('square', dup(), '*')) == '{ dup * } : square'
+
+    def test_word_usage(self):
+        @script()
+        def main():
+            square = word('square', dup(), '*')
+            square(2)
+            power5 = word('**5', square(square(dup())), '*')
+            power5(3)
+
+        assert main() == '{ dup * } : square\n' \
+                         '2 square\n' \
+                         '{ dup square square * } : **5\n' \
+                         '3 **5'
+
+
 class TestFile:
     def test_read(self):
         assert file('test.bin').read() == '"test.bin" file>B'

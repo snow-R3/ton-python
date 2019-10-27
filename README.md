@@ -35,6 +35,22 @@ def main():
     include('TonUtil.fif')
 ```
 
+#### Create the new word and its usage
+
+```python
+from fift.fift import *
+
+@script()
+def main():
+    # Transforms in: `{ dup * } : square`
+    square = word('square', dup(), '*')
+    # `2 square`
+    square(2)
+    # `{ dup square square * } : **5`
+    power5 = word('**5', square(square(dup())), '*')
+    power5(3)
+```
+
 #### Create the different constants
 
 ```python
@@ -130,6 +146,17 @@ def main():
     #   @' a { dup + =: a } 3 times
     a = const('a', 1)
     times(3, assign(a, dup(), '+')).before(a)
+```
+
+#### Create a block
+
+```python
+from fift.fift import *
+
+@script()
+def main():
+    # Transforms in: `{  }`
+    block()
 ```
 
 *** Also to understand how it works you can look at the python tests.
