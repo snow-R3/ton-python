@@ -5,14 +5,6 @@ import typing as t
 __SCRIPTS__ = {}
 
 
-class String:
-    def __init__(self, *args):
-        self._args = args
-
-    def __str__(self):
-        return '"%s"' % self._args[0]
-
-
 def seq(*args, separator=' '):
     return separator.join(
         isinstance(a, dict) and 'dictnew' or str(a) for a in args if a is not None
@@ -23,6 +15,11 @@ class Interface:
     def __init__(self, *args):
         self._lines = None
         self._args = args
+
+    def get_args(self):
+        return self._args
+
+    args = property(get_args)
 
     def set_lines(self, lines):
         self._lines = lines
@@ -61,6 +58,37 @@ def method(max_level=1):
             return res
         return wrap2
     return wrap
+
+
+class String:
+    def __init__(self, *args):
+        self._args = args
+        self._print = False
+        self._cr = False
+
+    def __str__(self):
+        return (
+           self._print and '.' or ''
+        ) + seq(*(
+            (
+                isinstance(a, str) and '"%s"' % a
+                or (isinstance(a, Const) and a.read() + (isinstance(a.args[-1], (int,)) and ' (.)' or ''))
+                or '%s (.)' % a
+            )
+            + (i > 0 and ' $+' or '')
+            for i, a in enumerate(self._args)
+        )) + (
+            self._cr and ' cr' or '')
+
+    def print(self, cr=False):
+        self._print = True
+        self._cr = cr
+        return self
+
+
+@method()
+def string(*args):
+    return String(*args)
 
 
 @method()
@@ -345,6 +373,13 @@ class Assign(Interface):
         self._name = name
 
         super(Assign, self).__init__(*args)
+
+    def set_lines(self, lines):
+        super(Assign, self).set_lines(lines)
+
+        for a in self._args:
+            if isinstance(a, String):
+                self._lines.pop()
 
     def __str__(self):
         return '%s =: %s' % (seq(*self._args), isinstance(self._name, Const) and self._name.name or self._name)

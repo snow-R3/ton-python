@@ -22,8 +22,40 @@ def test_save_script_to_file():
         fift_code_file().write.assert_called_once_with('1 constant a')
 
 
-def test_string():
-    assert str(String('abc')) == '"abc"'
+class TestString:
+    def test_create(self):
+        assert str(string('abc')) == '"abc"'
+
+    def test_print(self):
+        assert str(string('abc').print()) == '."abc"'
+
+    def test_cr(self):
+        assert str(string('abc').print(cr=True)) == '."abc" cr'
+
+    def test_concatenate(self):
+        assert str(string('a', 'b', 'c', 1, 2)) == '"a" "b" $+ "c" $+ 1 (.) $+ 2 (.) $+'
+
+    def test_convert_number_const_to_str(self):
+        @script()
+        def main():
+            a = const('a', 1)
+            assign(a, string(a))
+
+        assert main() == '1 constant a\n' \
+                         '@\' a (.) =: a'
+
+    def test_usage(self):
+        @script()
+        def main():
+            string('abc')
+            string('a', 'b', 1)
+            string('abc').print()
+            string('abc').print(cr=True)
+
+        assert main() == '"abc"\n' \
+                         '"a" "b" $+ 1 (.) $+\n' \
+                         '."abc"\n' \
+                         '."abc" cr'
 
 
 class TestInclude:

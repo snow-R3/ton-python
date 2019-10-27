@@ -3,6 +3,8 @@
 It's the prototype version and only has a little bit a part of Fift language 
 possibility.
 
+Fift language book [link](https://test.ton.org/fiftbase.pdf).
+
 ### Examples
 
 Create an empty Fift script:
@@ -21,7 +23,7 @@ set an optional keyword argument `out_filename` and the code will be automatical
 saved into the passed filename.
 
 To run the code transformation you need to call a function `main` wrapped `@script` 
-decorator. As the result you will get the Fift code.
+decorator. As a result you will get the generated Fift code.
 
 #### Include another Fift script
 
@@ -33,6 +35,33 @@ def main():
     # will be transformed as `"Asm.fif" include`
     include('Asm.fif')
     include('TonUtil.fif')
+
+main()
+```
+
+#### Work with strings
+
+```python
+from fift.fift import *
+
+@script()
+def main():
+    # Transforms in: `"abc"`
+    string('abc')
+    # Concatenation of many string values. Transforms in: `"a" "b" $+ 1 (.) $+`
+    string('a', 'b', 1)
+    # Transforms in: `."abc"`
+    string('abc').print()
+    # Transforms in: `."abc" cr`
+    string('abc').print(cr=True)
+    
+    # Convert a constant with number value to string value
+    # Transforms in: `1 constant a`
+    a = const('a', 1)
+    # Transforms in: `@' a (.) =: a`
+    assign(a, string(a))
+
+main()
 ```
 
 #### Create the new word and its usage
@@ -49,6 +78,8 @@ def main():
     # `{ dup square square * } : **5`
     power5 = word('**5', square(square(dup())), '*')
     power5(3)
+
+main()
 ```
 
 #### Create the different constants
@@ -73,7 +104,9 @@ def main():
     d[2] = ((4, 'u'), builder())
     
     # create the string constant
-    c = const('c', String('abc'))
+    const('c', String('abc'))
+
+main()
 ```
 
 #### Construct the builder
@@ -99,6 +132,8 @@ def main():
     builder().u(3, 16).inspect()
     # `<b 0 32 u, 2 4 i, b>`
     builder().u(0, 32).i(2, 4)
+
+main()
 ```
 
 #### Work with files (read, write and data deserialization)
@@ -128,6 +163,8 @@ def main():
         .s(2)
         .b(256, const=a)
         .ref(const=b))
+
+main()
 ```
 
 #### Simple loops
@@ -146,6 +183,8 @@ def main():
     #   @' a { dup + =: a } 3 times
     a = const('a', 1)
     times(3, assign(a, dup(), '+')).before(a)
+
+main()
 ```
 
 #### Create a block
@@ -157,6 +196,8 @@ from fift.fift import *
 def main():
     # Transforms in: `{  }`
     block()
+
+main()
 ```
 
 *** Also to understand how it works you can look at the python tests.
