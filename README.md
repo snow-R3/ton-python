@@ -125,7 +125,7 @@ def main():
     # `<b swap B, b>`
     builder().b(swap())
     # `<b swap ref, b>`
-    builder().ref(swap())
+    builder().r(swap())
     # `<b b{1001} s, b>`
     builder().s('b{1001}')
     # `<b 3 16 u, .s b>`
@@ -149,7 +149,7 @@ def main():
     file('test.bin').write()
     # deserialize data from a file
     # transforms in `"test.bin" file>B B>boc <s 7 u@+ 2 s@+ 256 B@+ ref@+`
-    file('test.bin').deserialize().u(7).s(2).b(256).ref()
+    file('test.bin').deserialize().u(7).s(2).b(256).r()
 
     # deserialize data and safe something to constants
     # transforms in:
@@ -162,27 +162,7 @@ def main():
         .u(7)
         .s(2)
         .b(256, const=a)
-        .ref(const=b))
-
-main()
-```
-
-#### Simple loops
-
-```python
-from fift.fift import *
-
-@script()
-def main():
-    # Simple loop. Transforms in `1 { 1+ } 1 times`
-    times(3, '1+').before(1)
-    # Reads a value from a constant and sum itself in each iteration of the loop 
-    # writing a new value to the constant
-    # Transforms in:
-    #   1 constant a
-    #   @' a { dup + =: a } 3 times
-    a = const('a', 1)
-    times(3, assign(a, dup(), '+')).before(a)
+        .r(const=b))
 
 main()
 ```
